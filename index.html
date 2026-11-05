@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>webport</title>
+    <title>ULTRAKILL</title>
     <style>
         html,
         body {
@@ -64,61 +64,23 @@
             document.getElementsByTagName('head')[0].appendChild(meta);
         }
 
-        function mergeFiles(fileParts) {
-            return new Promise((resolve, reject) => {
-                let buffers = [];
+        canvas.hidden = false;
 
-                function fetchPart(index) {
-                    if (index >= fileParts.length) {
-                        let mergedBlob = new Blob(buffers);
-                        let mergedFileUrl = URL.createObjectURL(mergedBlob);
-                        resolve(mergedFileUrl);
-                        return;
-                    }
-                    fetch(fileParts[index])
-                        .then((response) => {
-                            if (!response.ok) throw new Error(`Failed to load chunk: ${fileParts[index]}`);
-                            return response.arrayBuffer();
-                        })
-                        .then((data) => {
-                            buffers.push(data);
-                            fetchPart(index + 1);
-                        })
-                        .catch(reject);
-                }
-                fetchPart(0);
-            });
-        }
-
-        function getParts(file, start, end) {
-            let parts = [];
-            for (let i = start; i <= end; i++) {
-                parts.push(file + ".part" + i);
-            }
-            return parts;
-        }
-
-        // Load split data and run Unity instance
-        mergeFiles(getParts("Build/2facc552a7176a3c4f6184e293ead869.data.unityweb", 1, 3))
-            .then((dataUrl) => {
-                canvas.hidden = false;
-                return createUnityInstance(canvas, {
-                    dataUrl: dataUrl,
-                    frameworkUrl: "Build/372c51523da4553ad9ad6740d46ef615.framework.js.unityweb",
-                    codeUrl: "Build/4316a55f7504875581587d5c75896d34.wasm.unityweb",
-                    streamingAssetsUrl: "StreamingAssets",
-                    companyName: "Hakita",
-                    productName: "ULTRA",
-                    productVersion: "1.0",
-                }).then((unityInstance) => {
-                    loadingText.remove();
-                    URL.revokeObjectURL(dataUrl); // Release memory after load
-                });
-            })
-            .catch((err) => {
-                loadingText.innerText = "Error loading game. Check console for details.";
-                console.error("Unity WebGL Load Error:", err);
-            });
+        // Direct single-file WebGL initialization
+        createUnityInstance(canvas, {
+            dataUrl: "Build/2facc552a7176a3c4f6184e293ead869.data.unityweb",
+            frameworkUrl: "Build/372c51523da4553ad9ad6740d46ef615.framework.js.unityweb",
+            codeUrl: "Build/4316a55f7504875581587d5c75896d34.wasm.unityweb",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "Hakita",
+            productName: "ULTRAKILL",
+            productVersion: "1.0",
+        }).then((unityInstance) => {
+            loadingText.remove();
+        }).catch((err) => {
+            loadingText.innerText = "Error loading game. Check console for details.";
+            console.error("Unity WebGL Load Error:", err);
+        });
     </script>
 </body>
 
